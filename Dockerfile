@@ -14,8 +14,8 @@ RUN npm ci --omit=dev
 COPY server.js ./
 COPY *.html ./
 
-# 数据持久化目录
-VOLUME /app/data
+# 数据持久化目录（通过 Railway Volume 挂载 /app/data）
+RUN mkdir -p /app/data
 ENV DB_PATH=/app/data/food_oracle.db
 ENV PORT=3456
 
