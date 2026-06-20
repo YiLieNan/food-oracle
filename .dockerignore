@@ -1,0 +1,14 @@
+node_modules
+android
+mobile
+*.db
+*.db-wal
+*.db-shm
+.git
+.env.example
+Untitled-1.*
+食神签.exe
+start.bat
+启动.bat
+capacitor.config.ts
+package-lock.json

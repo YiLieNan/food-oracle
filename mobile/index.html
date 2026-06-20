@@ -1,0 +1,2131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+  <title>食神签 · 野生食神的日常审判</title>
+  <style>
+    /* ============================================
+   CSS CUSTOM PROPERTIES & RESET
+   ============================================ */
+    :root {
+      --bg-deep: #0d0d14;
+      --bg-temple: #14141f;
+      --gold: #c9a96e;
+      --gold-light: #dfc28a;
+      --gold-dim: #8a7040;
+      --paper: #f5f0e8;
+      --paper-dark: #d9d0c0;
+      --text-primary: #e8e0d0;
+      --text-secondary: #a09888;
+      --red-seal: #8b1a1a;
+      --red-bright: #c42b2b;
+      --ghost-green: #3a5a3a;
+      --ghost-purple: #3a2a4a;
+      --ai-glow: #6ec9a0;
+      --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.5);
+      --shadow-gold: 0 0 40px rgba(201, 169, 110, 0.15);
+      --shadow-ai: 0 0 30px rgba(110, 201, 160, 0.2);
+      --transition-slow: 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+      --transition-medium: 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+      /* 移动端安全区域（刘海屏/底部导航条） */
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      min-height: 100dvh;
+      /* 动态 viewport height，适配移动端地址栏收缩 */
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bottom);
+      padding-left: var(--safe-left);
+      padding-right: var(--safe-right);
+      transition: background var(--transition-slow), color var(--transition-slow);
+      position: relative;
+      /* 防止 WebView 弹性滚动导致背景露白 */
+      background: var(--bg-deep);
+      /* 禁止文本选择（移动端体验） */
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Background textures */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 30%, rgba(201, 169, 110, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse at 30% 70%, rgba(139, 26, 26, 0.04) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 60%, rgba(201, 169, 110, 0.03) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(201, 169, 110, 0.015) 2px, rgba(201, 169, 110, 0.015) 3px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    body.night-mode {
+      background: #0a0a12;
+    }
+
+    body.night-mode::before {
+      background:
+        radial-gradient(ellipse at 50% 30%, rgba(58, 90, 58, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 30% 70%, rgba(58, 42, 74, 0.1) 0%, transparent 50%);
+    }
+
+    body.night-mode .temple-title {
+      color: #8ab88a;
+    }
+
+    body.night-mode .god-name {
+      color: #8ab88a;
+    }
+
+    /* ── App Container ── */
+    .app-container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 500px;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    /* ── Header ── */
+    .header {
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .temple-title {
+      font-family: 'STKaiti', 'KaiTi', 'Noto Serif SC', 'SimSun', serif;
+      font-size: 2rem;
+      color: var(--gold);
+      letter-spacing: 0.15em;
+      text-shadow: 0 0 30px rgba(201, 169, 110, 0.3);
+      user-select: none;
+    }
+
+    .god-name {
+      font-size: 0.85rem;
+      color: var(--gold-dim);
+      letter-spacing: 0.2em;
+      margin-top: 4px;
+      font-family: 'STKaiti', 'KaiTi', 'Noto Serif SC', serif;
+    }
+
+    .mood-indicator {
+      display: inline-block;
+      font-size: 0.75rem;
+      padding: 3px 14px;
+      border: 1px solid var(--gold-dim);
+      border-radius: 20px;
+      color: var(--gold-dim);
+      margin-top: 8px;
+      opacity: 0.7;
+    }
+
+    /* ── Settings Gear ── */
+    .settings-gear {
+      position: fixed;
+      top: calc(16px + var(--safe-top));
+      right: calc(16px + var(--safe-right));
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(30, 30, 40, 0.8);
+      border: 1px solid rgba(201, 169, 110, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 30;
+      font-size: 0.9rem;
+      color: var(--gold-dim);
+      transition: all var(--transition-medium);
+    }
+
+    .settings-gear:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    /* ── Settings Panel ── */
+    .settings-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-medium);
+    }
+
+    .settings-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .settings-panel {
+      background: #1a1a28;
+      border: 1px solid var(--gold-dim);
+      border-radius: 10px;
+      padding: 28px 22px;
+      max-width: 420px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-soft), var(--shadow-gold);
+    }
+
+    .settings-panel h3 {
+      font-family: 'STKaiti', 'KaiTi', serif;
+      color: var(--gold);
+      margin-bottom: 18px;
+      text-align: center;
+      letter-spacing: 0.1em;
+    }
+
+    .settings-section {
+      margin-bottom: 18px;
+    }
+
+    .settings-section label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .settings-section select,
+    .settings-section input[type="text"],
+    .settings-section input[type="password"] {
+      width: 100%;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(201, 169, 110, 0.25);
+      border-radius: 4px;
+      color: var(--text-primary);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color var(--transition-medium);
+    }
+
+    .settings-section select:focus,
+    .settings-section input:focus {
+      border-color: var(--gold);
+    }
+
+    .settings-section select option {
+      background: #1a1a28;
+      color: var(--text-primary);
+    }
+
+    .settings-hint {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      margin-top: 4px;
+      opacity: 0.7;
+      line-height: 1.5;
+    }
+
+    .settings-hint a {
+      color: var(--gold-light);
+    }
+
+    .settings-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .settings-actions .btn {
+      flex: 1;
+    }
+
+    .ai-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      padding: 2px 10px;
+      border-radius: 12px;
+      margin-left: 8px;
+    }
+
+    .ai-status.connected {
+      background: rgba(110, 201, 160, 0.15);
+      color: var(--ai-glow);
+      border: 1px solid rgba(110, 201, 160, 0.3);
+    }
+
+    .ai-status.disconnected {
+      background: rgba(200, 200, 200, 0.08);
+      color: #888;
+      border: 1px solid rgba(200, 200, 200, 0.15);
+    }
+
+    /* ── Oracle Tube ── */
+    .tube-stage {
+      position: relative;
+      width: 200px;
+      height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 600px;
+    }
+
+    .tube {
+      position: relative;
+      width: 100px;
+      height: 220px;
+      background: linear-gradient(180deg, #1a1a2e 0%, #1f1f35 50%, #1a1a2e 100%);
+      border: 2px solid var(--gold-dim);
+      border-radius: 12px 12px 20px 20px;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5), 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 6px rgba(10, 10, 20, 0.8), 0 0 0 8px rgba(138, 112, 64, 0.3);
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow var(--transition-medium);
+      user-select: none;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 12px;
+      overflow: hidden;
+    }
+
+    .tube:hover {
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5), 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 0 6px rgba(10, 10, 20, 0.8), 0 0 0 8px rgba(138, 112, 64, 0.5), 0 0 50px rgba(201, 169, 110, 0.15);
+    }
+
+    .tube::before {
+      content: '';
+      position: absolute;
+      top: 18px;
+      left: -4px;
+      right: -4px;
+      height: 3px;
+      background: var(--gold);
+      border-radius: 2px;
+      box-shadow: 0 0 8px rgba(201, 169, 110, 0.4);
+      z-index: 2;
+    }
+
+    .tube::after {
+      content: '';
+      position: absolute;
+      bottom: 30px;
+      left: -4px;
+      right: -4px;
+      height: 3px;
+      background: var(--gold);
+      border-radius: 2px;
+      box-shadow: 0 0 8px rgba(201, 169, 110, 0.4);
+      z-index: 2;
+    }
+
+    .tube-base {
+      position: absolute;
+      bottom: -8px;
+      width: 120px;
+      height: 16px;
+      background: linear-gradient(180deg, #2a2a3a, #1a1a2a);
+      border: 2px solid var(--gold-dim);
+      border-radius: 50%;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    .stick-heads {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px 6px;
+      justify-content: center;
+      padding: 2px 8px;
+      z-index: 1;
+    }
+
+    .stick-head {
+      width: 6px;
+      height: 22px;
+      background: linear-gradient(180deg, #e8d5b0, #c9a96e, #8a7040);
+      border-radius: 3px 3px 1px 1px;
+      box-shadow: 0 0 4px rgba(201, 169, 110, 0.3);
+    }
+
+    body.night-mode .stick-head {
+      box-shadow: 0 0 8px rgba(58, 180, 120, 0.5);
+      background: linear-gradient(180deg, #c8e8c8, #8ab88a, #4a7a4a);
+    }
+
+    .tube.shaking {
+      animation: tubeShake 0.6s ease-in-out;
+    }
+
+    @keyframes tubeShake {
+
+      0%,
+      100% {
+        transform: translateX(0) rotate(0deg);
+      }
+
+      10% {
+        transform: translateX(-8px) rotate(-3deg);
+      }
+
+      20% {
+        transform: translateX(8px) rotate(3deg);
+      }
+
+      30% {
+        transform: translateX(-12px) rotate(-5deg);
+      }
+
+      40% {
+        transform: translateX(12px) rotate(5deg);
+      }
+
+      50% {
+        transform: translateX(-8px) rotate(-3deg);
+      }
+
+      60% {
+        transform: translateX(6px) rotate(2deg);
+      }
+
+      70% {
+        transform: translateX(-4px) rotate(-1deg);
+      }
+
+      80% {
+        transform: translateX(3px) rotate(1deg);
+      }
+
+      90% {
+        transform: translateX(-1px) rotate(0deg);
+      }
+    }
+
+    .flying-stick {
+      position: absolute;
+      width: 8px;
+      height: 80px;
+      background: linear-gradient(180deg, #f0d8a0, #c9a96e, #a08050);
+      border-radius: 4px;
+      box-shadow: 0 0 20px rgba(201, 169, 110, 0.6);
+      z-index: 10;
+      pointer-events: none;
+      opacity: 0;
+    }
+
+    .flying-stick.active {
+      animation: stickFlyOut 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    @keyframes stickFlyOut {
+      0% {
+        opacity: 1;
+        transform: translateY(0) rotate(0deg) scale(1);
+      }
+
+      30% {
+        opacity: 1;
+        transform: translateY(-60px) rotate(180deg) scale(1.1);
+      }
+
+      60% {
+        opacity: 1;
+        transform: translateY(-100px) rotate(360deg) scale(0.9);
+      }
+
+      80% {
+        opacity: 1;
+        transform: translateY(-40px) rotate(540deg) scale(1);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(20px) rotate(720deg) scale(0.3);
+      }
+    }
+
+    /* ── Hint ── */
+    .hint-text {
+      font-family: 'STKaiti', 'KaiTi', 'Noto Serif SC', serif;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.1em;
+      text-align: center;
+      opacity: 0.7;
+    }
+
+    /* ── Diagnosis Card ── */
+    .diagnosis-card {
+      width: 100%;
+      max-width: 440px;
+      background: linear-gradient(180deg, #1f1f30, #181825);
+      border: 1px solid var(--gold-dim);
+      border-radius: 8px;
+      padding: 28px 24px;
+      position: relative;
+      box-shadow: var(--shadow-soft), var(--shadow-gold);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+      pointer-events: none;
+    }
+
+    .diagnosis-card.revealed {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .diagnosis-card::after {
+      content: '食神御判';
+      position: absolute;
+      top: 16px;
+      right: 20px;
+      font-family: 'STKaiti', 'KaiTi', 'Noto Serif SC', serif;
+      font-size: 0.85rem;
+      color: var(--red-seal);
+      border: 2px solid var(--red-seal);
+      padding: 4px 8px;
+      transform: rotate(12deg);
+      border-radius: 3px;
+      opacity: 0.8;
+    }
+
+    body.night-mode .diagnosis-card::after {
+      color: #5a8a5a;
+      border-color: #5a8a5a;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(201, 169, 110, 0.2);
+    }
+
+    .card-food-icon {
+      font-size: 2rem;
+    }
+
+    .card-food-name {
+      font-family: 'STKaiti', 'KaiTi', 'Noto Serif SC', serif;
+      font-size: 1.4rem;
+      color: var(--gold-light);
+      letter-spacing: 0.1em;
+    }
+
+    .card-time-judgement {
+      font-family: 'STKaiti', 'KaiTi', 'Noto Serif SC', serif;
+      font-size: 0.95rem;
+      color: var(--red-bright);
+      line-height: 1.8;
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      background: rgba(139, 26, 26, 0.06);
+      border-left: 3px solid rgba(139, 26, 26, 0.4);
+      border-radius: 0 4px 4px 0;
+    }
+
+    body.night-mode .card-time-judgement {
+      color: #8ab88a;
+      background: rgba(58, 90, 58, 0.1);
+      border-left-color: rgba(58, 90, 58, 0.5);
+    }
+
+    .card-diagnosis {
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      line-height: 1.9;
+      margin-bottom: 8px;
+      white-space: pre-wrap;
+    }
+
+    .card-mood-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 2px 10px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      opacity: 0.6;
+    }
+
+    /* AI response section */
+    .ai-response-section {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed rgba(201, 169, 110, 0.15);
+      opacity: 0;
+      max-height: 0;
+      overflow: hidden;
+      transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    .ai-response-section.active {
+      opacity: 1;
+      max-height: 600px;
+    }
+
+    .ai-response-label {
+      font-size: 0.7rem;
+      color: var(--ai-glow);
+      letter-spacing: 0.15em;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ai-response-label::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--ai-glow);
+      border-radius: 50%;
+      animation: aiPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes aiPulse {
+
+      0%,
+      100% {
+        opacity: 0.4;
+        box-shadow: 0 0 4px var(--ai-glow);
+      }
+
+      50% {
+        opacity: 1;
+        box-shadow: 0 0 12px var(--ai-glow);
+      }
+    }
+
+    .ai-response-text {
+      font-family: 'STKaiti', 'KaiTi', 'Noto Serif SC', serif;
+      font-size: 0.9rem;
+      color: #c0d8c8;
+      line-height: 1.9;
+      white-space: pre-wrap;
+    }
+
+    .ai-response-loading {
+      color: var(--ai-glow);
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .ai-dots {
+      display: inline-flex;
+      gap: 3px;
+    }
+
+    .ai-dots span {
+      width: 4px;
+      height: 4px;
+      background: var(--ai-glow);
+      border-radius: 50%;
+      animation: dotBounce 1.2s ease-in-out infinite;
+    }
+
+    .ai-dots span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .ai-dots span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes dotBounce {
+
+      0%,
+      80%,
+      100% {
+        transform: translateY(0);
+        opacity: 0.3;
+      }
+
+      40% {
+        transform: translateY(-8px);
+        opacity: 1;
+      }
+    }
+
+    /* Cursor blink for typewriter */
+    .typing-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: var(--ai-glow);
+      margin-left: 2px;
+      animation: cursorBlink 0.8s step-end infinite;
+      vertical-align: text-bottom;
+    }
+
+    @keyframes cursorBlink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0;
+      }
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      flex: 1;
+      min-width: 80px;
+      padding: 12px 16px;
+      border: 1px solid var(--gold-dim);
+      border-radius: 6px;
+      font-family: 'STKaiti', 'KaiTi', 'Noto Serif SC', serif;
+      font-size: 0.95rem;
+      cursor: pointer;
+      letter-spacing: 0.1em;
+      transition: all var(--transition-medium);
+      background: transparent;
+      color: var(--gold);
+      text-align: center;
+    }
+
+    .btn:hover {
+      background: rgba(201, 169, 110, 0.08);
+      border-color: var(--gold);
+    }
+
+    .btn.primary {
+      background: rgba(201, 169, 110, 0.12);
+      border-color: var(--gold);
+    }
+
+    .btn.primary:hover {
+      background: rgba(201, 169, 110, 0.2);
+    }
+
+    .btn.danger {
+      border-color: rgba(139, 26, 26, 0.5);
+      color: var(--red-bright);
+    }
+
+    .btn.danger:hover {
+      background: rgba(139, 26, 26, 0.08);
+      border-color: var(--red-bright);
+    }
+
+    .btn.ai-btn {
+      border-color: rgba(110, 201, 160, 0.4);
+      color: var(--ai-glow);
+      flex: 2;
+      min-width: 140px;
+    }
+
+    .btn.ai-btn:hover {
+      background: rgba(110, 201, 160, 0.08);
+      border-color: var(--ai-glow);
+      box-shadow: var(--shadow-ai);
+    }
+
+    .btn.ai-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .btn.ghost {
+      flex: 0;
+      min-width: auto;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      opacity: 0.5;
+    }
+
+    .btn.ghost:hover {
+      opacity: 1;
+    }
+
+    /* ── Sin Scroll ── */
+    .sin-scroll {
+      position: fixed;
+      bottom: calc(24px + var(--safe-bottom));
+      right: calc(24px + var(--safe-right));
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(30, 30, 40, 0.9);
+      border: 1px solid rgba(139, 26, 26, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 20;
+      opacity: 0;
+      transform: scale(0);
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 0 20px rgba(139, 26, 26, 0.2);
+    }
+
+    .sin-scroll.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .sin-scroll:hover {
+      border-color: var(--red-bright);
+      box-shadow: 0 0 30px rgba(139, 26, 26, 0.4);
+    }
+
+    .sin-scroll-icon {
+      font-size: 1.2rem;
+    }
+
+    .sin-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 20px;
+      height: 20px;
+      background: var(--red-bright);
+      border-radius: 50%;
+      font-size: 0.65rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .sin-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-medium);
+    }
+
+    .sin-modal.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sin-modal-content {
+      background: #1a1a28;
+      border: 2px solid var(--red-seal);
+      border-radius: 8px;
+      padding: 32px 24px;
+      max-width: 400px;
+      width: 90%;
+      max-height: 70vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .sin-modal-title {
+      font-family: 'STKaiti', 'KaiTi', serif;
+      font-size: 1.3rem;
+      color: var(--red-bright);
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .sin-list {
+      list-style: none;
+    }
+
+    .sin-item {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .sin-item-time {
+      font-size: 0.7rem;
+      opacity: 0.5;
+    }
+
+    .sin-close {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    /* ── Letter ── */
+    .letter-trigger {
+      position: fixed;
+      bottom: calc(24px + var(--safe-bottom));
+      left: calc(24px + var(--safe-left));
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(30, 30, 40, 0.9);
+      border: 1px solid rgba(201, 169, 110, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 20;
+    }
+
+    .letter-trigger:hover {
+      border-color: var(--gold);
+      box-shadow: 0 0 30px rgba(201, 169, 110, 0.25);
+    }
+
+    .letter-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-medium);
+    }
+
+    .letter-modal.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .letter-content {
+      background: #1a1a28;
+      border: 1px solid var(--gold-dim);
+      border-radius: 8px;
+      padding: 32px 24px;
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .letter-input {
+      width: 100%;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--gold-dim);
+      border-radius: 4px;
+      color: var(--text-primary);
+      font-size: 0.95rem;
+      text-align: center;
+      margin: 16px 0;
+      outline: none;
+    }
+
+    .letter-input:focus {
+      border-color: var(--gold);
+    }
+
+    /* ── Strike ── */
+    .strike-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-slow);
+    }
+
+    .strike-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .strike-note {
+      text-align: center;
+      padding: 40px;
+    }
+
+    .strike-note h2 {
+      font-family: 'STKaiti', 'KaiTi', serif;
+      font-size: 1.5rem;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+
+    .strike-note p {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      line-height: 1.8;
+    }
+
+    .strike-note .emoji {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 20px;
+    }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-120px);
+      background: #1a1a28;
+      border: 1px solid var(--gold-dim);
+      border-radius: 6px;
+      padding: 12px 24px;
+      z-index: 200;
+      pointer-events: none;
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      font-family: 'STKaiti', 'KaiTi', serif;
+      font-size: 0.9rem;
+      color: var(--gold-light);
+      box-shadow: var(--shadow-gold);
+      max-width: 90vw;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* ── Ghost Face ── */
+    .ghost-face {
+      position: fixed;
+      pointer-events: none;
+      z-index: 5;
+      font-size: 2rem;
+      opacity: 0;
+      animation: ghostFloat 3s ease-in-out forwards;
+    }
+
+    @keyframes ghostFloat {
+      0% {
+        opacity: 0;
+        transform: translateY(0) scale(0.5);
+      }
+
+      15% {
+        opacity: 0.7;
+        transform: translateY(-20px) scale(1);
+      }
+
+      30% {
+        opacity: 1;
+        transform: translateY(-40px) scale(1.1);
+      }
+
+      70% {
+        opacity: 0.6;
+        transform: translateY(-80px) scale(0.9);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-120px) scale(0.3);
+      }
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 420px) {
+      .app-container {
+        padding: 16px 12px;
+        gap: 16px;
+      }
+
+      .temple-title {
+        font-size: 1.6rem;
+      }
+
+      .tube-stage {
+        width: 160px;
+        height: 240px;
+      }
+
+      .tube {
+        width: 80px;
+        height: 180px;
+      }
+
+      .tube-base {
+        width: 100px;
+      }
+
+      .diagnosis-card {
+        padding: 20px 16px;
+      }
+
+      .card-actions {
+        flex-direction: column;
+      }
+
+      .btn.ai-btn {
+        flex: 1;
+      }
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(201, 169, 110, 0.2);
+      border-radius: 2px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- App Container -->
+  <div class="app-container" id="appContainer">
+
+    <div class="header">
+      <h1 class="temple-title" id="templeTitle">食 神 签</h1>
+      <p class="god-name" id="godName">—— 野生食神 · 日常审判所 ——</p>
+      <div class="mood-indicator" id="moodIndicator">
+        今日神谕：待启
+        <span class="ai-status disconnected" id="aiStatusBadge">🤖 未连接</span>
+      </div>
+    </div>
+
+    <!-- Oracle Tube -->
+    <div class="tube-stage" id="tubeStage">
+      <div class="tube" id="tube">
+        <div class="stick-heads" id="stickHeads"></div>
+      </div>
+      <div class="tube-base"></div>
+      <div class="flying-stick" id="flyingStick"></div>
+    </div>
+
+    <p class="hint-text" id="hintText">晃动签筒，求一支食签</p>
+
+    <!-- Diagnosis Card -->
+    <div class="diagnosis-card" id="diagnosisCard">
+      <div class="card-header">
+        <span class="card-food-icon" id="cardFoodIcon"></span>
+        <span class="card-food-name" id="cardFoodName"></span>
+      </div>
+      <div class="card-time-judgement" id="cardTimeJudgement"></div>
+      <div class="card-diagnosis" id="cardDiagnosis"></div>
+      <span class="card-mood-tag" id="cardMoodTag"></span>
+
+      <!-- AI Response Section -->
+      <div class="ai-response-section" id="aiResponseSection">
+        <div class="ai-response-label">🔮 食神亲自开口（AI 真言）</div>
+        <div class="ai-response-text" id="aiResponseText"></div>
+        <div class="ai-response-loading" id="aiResponseLoading" style="display:none;">
+          食神正在思索<span class="ai-dots"><span></span><span></span><span></span></span>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn primary" onclick="acceptFortune()">🙏 从命</button>
+        <button class="btn ai-btn" id="btnAiSpeak" onclick="letGodSpeak()" disabled>🔮 让神亲自开口</button>
+        <button class="btn danger" onclick="rejectFortune()">⚔️ 抗旨</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Gear -->
+  <div class="settings-gear" id="settingsGear" onclick="openSettings()">⚙️</div>
+
+  <!-- Settings Panel -->
+  <div class="settings-overlay" id="settingsOverlay" onclick="closeSettings(event)">
+    <div class="settings-panel" onclick="event.stopPropagation()">
+      <button class="sin-close" onclick="closeSettingsDirect()">✕</button>
+      <h3>⚙️ 关于食神签</h3>
+
+      <div class="settings-section">
+        <label>🔮 AI 神谕</label>
+        <div id="aiConfigStatus" style="font-size:0.85rem;color:var(--text-secondary);line-height:1.6;">
+          正在检查...
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <label>📡 服务器地址</label>
+        <input type="text" id="serverUrlInput" placeholder="https://你的服务.railway.app 或 http://IP:3456" style="width:100%;padding:10px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(201,169,110,0.25);border-radius:4px;color:var(--text-primary);font-size:0.85rem;outline:none;">
+        <div class="settings-hint" style="margin-top:6px;">
+          输入后自动重连。可填云服务地址（推荐）或局域网 IP。<br>
+          当前状态：<span id="serverStatus">检测中...</span>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <label>📖 说明</label>
+        <div style="font-size:0.8rem;color:var(--text-secondary);line-height:1.8;">
+          手机端封装版 · Capacitor<br>
+          推荐将后端部署到云端（Railway/Render/VPS），<br>
+          然后在此填写云端地址，即可随时随地使用。<br>
+          AI 神谕由管理员在服务器端统一配置。
+        </div>
+      </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sin Scroll -->
+  <div class="sin-scroll" id="sinScroll" onclick="openSinScroll()">
+    <span class="sin-scroll-icon">📜</span>
+    <span class="sin-badge" id="sinBadge">0</span>
+  </div>
+
+  <!-- Letter Trigger -->
+  <div class="letter-trigger" id="letterTrigger" onclick="openLetterModal()">✉️</div>
+
+  <!-- Sin Modal -->
+  <div class="sin-modal" id="sinModal" onclick="closeSinScroll(event)">
+    <div class="sin-modal-content" onclick="event.stopPropagation()">
+      <button class="sin-close" onclick="closeSinScrollDirect()">✕</button>
+      <h3 class="sin-modal-title">📜 记仇小本本</h3>
+      <ul class="sin-list" id="sinList"></ul>
+    </div>
+  </div>
+
+  <!-- Letter Modal -->
+  <div class="letter-modal" id="letterModal" onclick="closeLetterModal(event)">
+    <div class="letter-content" onclick="event.stopPropagation()">
+      <button class="sin-close" onclick="closeLetterModalDirect()">✕</button>
+      <h3 style="font-family:'STKaiti','KaiTi',serif;color:var(--gold);margin-bottom:8px;">✉️ 食神的信</h3>
+      <p style="color:var(--text-secondary);font-size:0.85rem;" id="letterMessage"></p>
+      <input class="letter-input" id="letterInput" placeholder="留下你的名号…" maxlength="12">
+      <button class="btn primary" style="width:100%;" onclick="submitLetter()">投递信笺</button>
+    </div>
+  </div>
+
+  <!-- Strike Overlay -->
+  <div class="strike-overlay" id="strikeOverlay">
+    <div class="strike-note">
+      <span class="emoji">🏳️</span>
+      <h2>食神今日罢工</h2>
+      <p>去天上跟人吵架了<br>你自己抛硬币吧<br><br><span style="font-size:0.8rem;opacity:0.5;">明天再来，神或许就回来了</span></p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /* ============================================
+       食神签 — 完整引擎（含 AI 集成 + 服务器同步）
+       ============================================ */
+
+    // ── Server Config ─────────────────────────
+    // 检测是否在 Capacitor 原生环境中运行
+    const IS_CAPACITOR = !!(window.Capacitor && window.Capacitor.isNativePlatform());
+
+    // 从 localStorage 读取用户配置的服务器地址
+    function getServerUrl() {
+      const savedUrl = localStorage.getItem('food_oracle_server_url');
+      if (savedUrl) return savedUrl;
+
+      // 同端口 → 同源（浏览器访问服务器同一地址时）
+      if (!IS_CAPACITOR && window.location.port === '3456') return '';
+      // 其他浏览器场景 → localhost
+      if (!IS_CAPACITOR) return 'http://localhost:3456';
+      // 手机 App 首次启动 → 无默认地址，需用户配置
+      return '';
+    }
+
+    function saveServerUrl(url) {
+      localStorage.setItem('food_oracle_server_url', url);
+      SERVER_URL = url || '';
+      SERVER_ENABLED = !!url;
+    }
+
+    let SERVER_URL = getServerUrl();
+    let SERVER_ENABLED = !!SERVER_URL || (!IS_CAPACITOR); // 手机端未配置时禁用服务器功能
+
+    // ── Constants ────────────────────────────
+    const TIME_PERIODS = {
+      MORNING: 'morning',
+      NOON: 'noon',
+      EVENING: 'evening',
+      NIGHT: 'night'
+    };
+
+    const PERIOD_LABELS = {
+      morning: '早上/上午',
+      noon: '中午',
+      evening: '下午/傍晚',
+      night: '深夜/夜宵时间'
+    };
+
+    const MOODS = {
+      NORMAL: { name: 'normal', label: '今日神谕：平和', cssClass: '' },
+      ANGRY: { name: 'angry', label: '今日神谕：暴躁日 ⚡', cssClass: 'angry-day' },
+      EMO: { name: 'emo', label: '今日神谕：emo日 🌧️', cssClass: 'emo-day' },
+      CHUUNIBYOU: { name: 'chuunibyou', label: '今日神谕：中二病发 🔥', cssClass: 'chunni-day' },
+      STRIKE: { name: 'strike', label: '食神罢工', cssClass: 'strike-day' }
+    };
+
+    // ── AI 配置（从服务端获取状态）─────────
+    let aiServerConfigured = false;
+    let aiProviderName = '';
+
+    // ── Food Database ─────────────────────────
+    const FOOD_DATABASE = [
+      {
+        id: 'doujiang_youtiao', name: '豆浆油条', icon: '🥖', category: '早餐经典',
+        time_judgement: {
+          morning: '晨光熹微，油条蘸豆浆，这是属于早鸟的正统朝食。食神点头：你今日的作息，勉强及格。',
+          noon: '正午求此物？你的胃里住着一个不肯搬走的清晨。也罢，油条之神不问时辰——但这顿，神只能赐名【迟到的晨曦忏悔餐】。',
+          evening: '傍晚吃油条？你今天的生物钟是被搅拌机打过了吗？食神扶额：准了，但下次请尊重一下太阳的位置。',
+          night: '子夜求早膳，你体内的昼夜节律已是一团揉烂的废纸。也罢，赐你此签，但明日醒来你的胃会写一封血泪控诉信。'
+        },
+        diagnosis: '朴素之中见真章。豆浆油条者，华夏早餐之正统，庙堂之高与江湖之远皆可容之。食神判曰：你今日所求，不在山珍海味，而在踏实的慰藉。去吧，趁油条尚脆，趁豆浆尚温。',
+        angry_bonus: '（暴躁附加：就吃这个？行吧，至少比那些花里胡哨的网红早餐强一百倍。别让我再说第二遍。）'
+      },
+      {
+        id: 'malatang', name: '麻辣烫', icon: '🍲', category: '江湖硬菜',
+        time_judgement: {
+          morning: '清晨即求此物——你的肠胃是铁打的还是你已自我放弃了？食神敬你是条汉子，特批：今日麻辣烫可免麻免辣，但免不了同事对你早餐选择的侧目。',
+          noon: '午时求辣，正当其时。你体内有一团火需要以火攻火，食神认可这份以毒攻毒的胆识。',
+          evening: '晚来天欲雪，能涮一碗无？麻辣烫是夜晚的合法放纵，食神盖上御印：吃！',
+          night: '深夜麻辣烫，是对明天自己的公然宣战。食神不拦，但已在你档案里记了一笔：此人视肠胃为仇敌。'
+        },
+        diagnosis: '麻辣烫者，江湖之食也。万物皆可涮，百味一锅收。食神观你面相，今日你心中有火——不是愤怒，是那种「不管了今天就要吃顿痛快的」的豁出去。签文显示：加一份藕片，它能吸走你今日的晦气。',
+        angry_bonus: '（暴躁附加：吃吃吃！辣死你算了！不过说真的，别点特辣，你那个怂样我还不清楚？）'
+      },
+      {
+        id: 'kaorou', name: '烤肉', icon: '🥩', category: '肉食盛宴',
+        time_judgement: {
+          morning: '晨起求烤肉？你的食欲作息已经叛离人类阵营。食神揉着太阳穴：……行吧，就当是「早餐式烤肉」，记得配生菜，假装自己在做健康选择。',
+          noon: '午间烤肉，是你在向平庸的工作日宣战。食神赞许：有胆色！午休时间最大化利用，这才是成年人该有的叛逆。',
+          evening: '晚来烤肉香，人生得意须尽欢。食神掐指一算，你今日需摄入至少200克蛋白质来弥补白天的精神损耗。准了。',
+          night: '子时求肉，非人即兽。你灵魂深处正在经历兽性反扑，食神理解，但不原谅。此签一出，明日清晨你必将与马桶签订一份不平等条约。且吃且珍惜。'
+        },
+        diagnosis: '烤肉是人类的返祖仪式。当油脂滴落炭火，青烟升起，你便在烟雾中看见了远古祖先围着篝火的倒影。食神判曰：你今日需要的不是食物，是那种撕咬的快感。去吧，点一份五花肉，让它在铁板上为你唱一首滋滋作响的赞歌。',
+        angry_bonus: '（暴躁附加：烤肉都不会自己烤的话当我没说。别点太多，上次有个凡人吃了三斤，第二天哭着来还愿——哦不对，来投诉。）'
+      },
+      {
+        id: 'shala', name: '沙拉', icon: '🥗', category: '健康修行',
+        time_judgement: {
+          morning: '晨起食草，你是自律的化身，还是昨夜吃多了的赎罪？食神姑且信你是前者。这份沙拉，神赐名【新一天的虚伪希望】。',
+          noon: '午饭吃草——你今日必有一场硬仗要打，以至于潜意识逼迫你用清醒的痛苦武装自己。食神敬告：加一份鸡胸肉，否则下午3点你的手会不受控制地伸向同事的零食抽屉。',
+          evening: '晚餐吃草，要么你是健身狂魔，要么你在为中午的炸鸡赎罪。食神不评判，但提醒：别把沙拉酱倒得比草还多。',
+          night: '深夜吃沙拉？你是真的自律还是在表演自律？食神冷笑：冰箱灯下独自嚼生菜的画面，比你想象的更凄凉。不如去睡吧。'
+        },
+        diagnosis: '沙拉是饮食界的苦行僧。选择它的人，要么在修行，要么在忏悔。食神掐指一算，你命中缺油水，但这未必是坏事——清简之食带来清醒之脑。只是记住：别用沙拉酱把这一切毁了，那是伪善。',
+        angry_bonus: '（暴躁附加：吃草？你当自己是兔子？行，那你别加沙拉酱，别加鸡胸肉，别加任何让草变好吃的东西。纯草！敢吗？）'
+      },
+      {
+        id: 'luosifen', name: '螺蛳粉', icon: '🍜', category: '气味武器',
+        time_judgement: {
+          morning: '晨起嗦粉，且是螺蛳粉——你的同事今日将经历一场嗅觉浩劫。食神佩服你的社交勇气，但建议你吃完后至少通风半小时再与人交谈。',
+          noon: '午间螺蛳粉，气味扩散半径3米。你工位附近的同事今日运势：-50。食神提醒：酸笋是人类分裂的根源，你选了站队的那一边。',
+          evening: '晚来嗦粉，最佳时机。夜风会帮你把气味散到整条街，你将收获路人复杂的眼神。食神批准：这很江湖。',
+          night: '深夜螺蛳粉——你已经不在乎任何人包括明天的自己了。这种自由令人敬畏。食神唯一的要求：别在卧室吃，粉味入被褥需要三天才能散尽。'
+        },
+        diagnosis: '螺蛳粉是食物界的榴莲，爱之者视若珍宝，恨之者避之不及。食神观你命盘，你今日需要一场不留余地的味觉刺激。酸笋的臭味是生活的真相，米粉的滑韧是在真相中穿行的韧性。去吧，但记得开窗。',
+        angry_bonus: '（暴躁附加：螺蛳粉？！你是要熏死本神吗？不过比起那些没性格的食物，至少你还有种。行，准了，但别靠近我。）'
+      },
+      {
+        id: 'hanbao', name: '汉堡', icon: '🍔', category: '快乐碳水',
+        time_judgement: {
+          morning: '早餐汉堡？你在美式生活方式的路上一去不返。食神提醒：配咖啡比配可乐稍微体面一点，但只是一点。',
+          noon: '午餐汉堡，快捷高效的选择。食神看到你今日行程很满，没空矫情。汉堡是打工人的忠诚战友——它从不多嘴，只管填饱。',
+          evening: '晚餐汉堡？你是加班到没力气选了吧。食神同情你，但建议至少点个非连锁的，让这顿晚餐有点尊严。',
+          night: '深夜汉堡是灵魂的创可贴。你今天的伤口，需要牛肉饼、芝士和碳水化合物的联合包扎。食神理解。吃吧，明天再减肥。'
+        },
+        diagnosis: '汉堡者，现代文明的快捷祭品。两片面包夹着人类对效率的全部理解。食神判曰：你今日需要简单粗暴的满足感。不要愧疚——偶尔的汉堡是对精致生活的一种必要反叛。记得加酸黄瓜，它能切穿油腻，如同清醒切穿混沌。',
+        angry_bonus: '（暴躁附加：汉堡都不会选？别点那个金色拱门的，去点真正有肉有芝士的！你的人生已经够凑合了，这顿饭不准凑合！）'
+      },
+      {
+        id: 'huoguo', name: '火锅', icon: '🫕', category: '群体仪式',
+        time_judgement: {
+          morning: '晨起求火锅？！你昨晚是喝到断片刚醒还是今天准备不上班了？食神拍案：荒唐！但……也不是不行。只是这个点开门的火锅店，可能跟你的底线一样——几乎没有。',
+          noon: '午间火锅是奢侈的午休方式。你在对下午的工作说：我不在乎了。食神欣赏这份豁达，但提醒：吃完身上那股牛油味，会在会议室里帮你吸引不必要的注意。',
+          evening: '晚来围炉，人间至乐。食神掐指一算：你今日社交运旺盛，宜呼朋引伴。火锅是群体主义在餐桌上的最高表达——去吧，抢肉要快，姿势要帅。',
+          night: '深夜火锅——你已不在乎明天是否水肿，不在乎衣服要晾三天。这种自由令人动容。食神只有一句忠告：别点最辣的锅底，你不知道凌晨三点的胃有多脆弱。'
+        },
+        diagnosis: '火锅是中国人最接近共产主义的时刻——同锅而食，不分彼此。食神观你命盘，今日宜集体行动。你需要的不是食物本身，是那种在氤氲热气中模糊了面孔的亲密。毛肚七上八下，鹅肠三起三落，这些不成文的规矩是对混乱世界的温柔秩序。',
+        angry_bonus: '（暴躁附加：火锅？！一个人吃火锅是有罪的你知道不？快去找人！少于两个饭搭子不准开火！这是神谕！）'
+      },
+      {
+        id: 'paomian', name: '泡面', icon: '🍜', category: '深夜救赎',
+        time_judgement: {
+          morning: '晨起泡面？你是在赶时间还是已经放弃了对早餐的一切追求？食神不忍苛责——至少你加了鸡蛋，对吗？对吗？！',
+          noon: '午餐泡面是对自己的一种温柔放弃。食神看到你今日经济紧张/时间紧迫/单纯不想动。没关系，泡面之神从不审判穷人。加根火腿肠，就当是顶配了。',
+          evening: '晚餐泡面——你是独居的吧？食神嗅到了孤独的气味。不是贬义，独居者的泡面有种独特的尊严：不表演、不社交、不解释。',
+          night: '深夜泡面是宇宙级的安慰。凌晨一点，热水注入纸碗的那三分钟，是今天唯一属于你的祈祷时间。食神在此刻不做审判，只陪着你等面泡好。'
+        },
+        diagnosis: '泡面是民间的通货，是独居者的礼拜，是凌晨一点最忠诚的伴侣。食神判曰：你今日需要的不是精致，是速度与温暖的共谋。在热气模糊镜片的那几秒，你与整个世界达成了短暂的和解。记得加个蛋——那是你对生活最后的倔强。',
+        angry_bonus: '（暴躁附加：泡面？！行吧……但你至少加个蛋加把青菜！光秃秃一碗面是对泡面之神的亵渎！听到了没！？）'
+      },
+      {
+        id: 'huangmenji', name: '黄焖鸡米饭', icon: '🍛', category: '国民便当',
+        time_judgement: {
+          morning: '早餐黄焖鸡？你的胃是特种兵出身吗？食神震惊但不多言——毕竟鸡肉和米饭在任何时辰都是合法的组合。',
+          noon: '黄焖鸡米饭——打工人的午间灯塔。全国统一的味道，全国统一的慰藉。食神掐指一算：你公司楼下必有一家。去吧，微辣是今天的平衡点。',
+          evening: '晚餐黄焖鸡，简单直接。食神看到你今天没有花哨的心情，只想被一锅炖得入味的鸡肉温柔地打发。这种诚实值得尊重。',
+          night: '深夜黄焖鸡——如果这时候还有店开着，那是天意。食神提醒：米饭多要一点，汤汁浇透，这是对这顿深夜正餐最基本的尊重。'
+        },
+        diagnosis: '黄焖鸡米饭是打工人午餐界的无冕之王。它不惊艳，但从不失手；不昂贵，但有肉有菜有饭。食神观你今日运势：宜平稳，宜务实。那锅咕嘟冒泡的黄焖鸡，就是你今天最可靠的锚点。加一份香菇，它能吸走你今日的疲惫。',
+        angry_bonus: '（暴躁附加：黄焖鸡？行，经典选择。但你要是点不辣的就太小看自己了。微辣起跳，中辣合格，这是神对你的最低要求！）'
+      },
+      {
+        id: 'naicha', name: '奶茶', icon: '🧋', category: '液体快乐',
+        time_judgement: {
+          morning: '晨起即求奶茶，你的血糖曲线今日将如过山车般精彩。食神提醒：空腹灌奶茶是对胰岛的一场偷袭。至少配点吃的——求你了。',
+          noon: '午间奶茶是给自己的一份合法贿赂。「喝完这杯就去认真工作」——食神听到这句话的频率，仅次于「明天开始减肥」。',
+          evening: '晚餐后一杯奶茶，是今日份的甜蜜句号。食神理解：你需要的不是茶也不是奶，是珍珠在齿间爆开的那0.3秒的快乐。',
+          night: '深夜奶茶——你已经不在乎咖啡因会不会让你失眠到凌晨三点。食神敬告：这杯下去，你今晚将与天花板进行一场深刻的互相凝视。但如果你执意如此，至少选半糖。'
+        },
+        diagnosis: '奶茶是液态的快乐，是现代人最便捷的情绪补丁。食神观你面相：你今日需要甜。不是糖的甜，是那种手握温热杯时从掌心蔓延到心里的安全感。珍珠、椰果、波霸——选你最喜欢的配料，那是今天你对自己说的「我值得」。',
+        angry_bonus: '（暴躁附加：奶茶？！喝喝喝就知道喝！……等一下，什么口味？芋泥波波？……还行，至少品味没烂透。全糖不准点！半糖！这是命令！）'
+      },
+      {
+        id: 'jiaozi', name: '饺子', icon: '🥟', category: '华夏正统',
+        time_judgement: {
+          morning: '晨起吃饺子？你是昨晚剩的还是特意早起的？食神倾向于后者——愿意早上煮饺子的人，对生活有一份不慌不忙的郑重。',
+          noon: '午间饺子，是北方灵魂在中午的苏醒。食神点头：饺子是任何时辰都体面的选择。蘸醋还是蘸酱油？这是你今天唯一的信仰抉择。',
+          evening: '晚餐饺子——「好吃不过饺子」。食神看到你今日需要一种被包裹的安全感。馅料藏在面皮里，就像你藏在人群里。吃吧，每一个饺子都是一个小小的避难所。',
+          night: '深夜煮饺子？你大概率是饿了但冰箱里只剩速冻水饺。食神叹气：煮的时候别忘了点三次凉水，软塌塌的饺子是对饺子之神的不敬。'
+        },
+        diagnosis: '饺子是华夏饮食的元符号。面皮包裹馅料，如同家包裹游子。食神观你命盘：你今日需要的不是惊艳，是那种咬开瞬间涌出的热气和熟悉的安心。三鲜还是猪肉白菜不重要，重要的是你愿意花时间等一锅水烧开——那是对自己的一份耐心。',
+        angry_bonus: '（暴躁附加：饺子？！好选择！但你煮的时候别玩手机！破一个饺子，就是在神的脸上划一道！严肃点！）'
+      },
+      {
+        id: 'shaokao', name: '烧烤', icon: '🍢', category: '江湖夜宴',
+        time_judgement: {
+          morning: '早餐烧烤？你是昨晚没散场还是今早就要重新开局？食神抱头：这个时辰的烧烤摊还没支起来，你求的是虚空中的一串。',
+          noon: '午间烧烤？你是翘班了还是今天团建？食神眯眼：工作日中午吃烧烤的人，要么是老板，要么是不想干了。你是哪一种？',
+          evening: '晚来撸串，人间正道。食神掐指一算：你今日社交运爆棚。烧烤是夜晚的社交货币——炭火是篝火的遗存，串是原始的分享单位。去吧，啤酒配串，天下无敌。',
+          night: '深夜烧烤——你已经抵达了快乐的终极形态。凌晨的烤串有一种白天的串没有的滋味，叫「不管了」。食神唯一担心的是你明天的体检报告。'
+        },
+        diagnosis: '烧烤是人类最古老的烹饪仪式。当肉串在炭火上滋滋作响，你其实在重演一万年前祖先的晚餐。食神判曰：你今日需要释放。不是优雅地释放，是那种嘴角沾着孜然、手指泛着油光的释放。点一份烤茄子，它是烧烤界最被低估的哲学家。',
+        angry_bonus: '（暴躁附加：烧烤！有品位！但你别什么都点！上次有个凡人点了五十串最后剩一半——浪费食物在本神这里是重罪！吃多少点多少！）'
+      }
+    ];
+
+    // ── State ─────────────────────────────────
+    let state = {
+      currentFood: null,
+      timePeriod: null,
+      mood: null,
+      antiCommandCount: 0,
+      consecutiveDays: 0,
+      lastVisitDate: null,
+      godLetterName: null,
+      sinRecords: [],
+      isDrawing: false,
+      poisonModeUnlocked: false,
+      isAiGenerating: false,
+      aiResponseText: ''
+    };
+
+    // ── DOM Refs ──────────────────────────────
+    const $ = id => document.getElementById(id);
+    const tube = $('tube');
+    const flyingStick = $('flyingStick');
+    const stickHeads = $('stickHeads');
+    const diagnosisCard = $('diagnosisCard');
+    const hintText = $('hintText');
+    const sinScroll = $('sinScroll');
+    const sinBadge = $('sinBadge');
+    const sinList = $('sinList');
+    const sinModal = $('sinModal');
+    const letterModal = $('letterModal');
+    const letterInput = $('letterInput');
+    const letterMessage = $('letterMessage');
+    const strikeOverlay = $('strikeOverlay');
+    const moodIndicator = $('moodIndicator');
+    const godName = $('godName');
+    const templeTitle = $('templeTitle');
+    const toast = $('toast');
+    const cardFoodIcon = $('cardFoodIcon');
+    const cardFoodName = $('cardFoodName');
+    const cardTimeJudgement = $('cardTimeJudgement');
+    const cardDiagnosis = $('cardDiagnosis');
+    const cardMoodTag = $('cardMoodTag');
+    const btnAiSpeak = $('btnAiSpeak');
+    const aiResponseSection = $('aiResponseSection');
+    const aiResponseText = $('aiResponseText');
+    const aiResponseLoading = $('aiResponseLoading');
+    const aiStatusBadge = $('aiStatusBadge');
+    const settingsOverlay = $('settingsOverlay');
+
+    // ── Init ──────────────────────────────────
+    async function init() {
+      loadState();
+      detectTimePeriod();
+      determineMood();
+      renderInitialUI();
+      generateStickHeads();
+      bindEvents();
+      initServerUrlInput();
+      await checkAIServerStatus();
+
+      // 手机端首次启动 → 自动弹出设置页配置服务器地址
+      if (IS_CAPACITOR && !SERVER_URL) {
+        setTimeout(() => {
+          showToast('👋 首次使用，请先配置服务器地址');
+          openSettings();
+        }, 800);
+      } else {
+        checkServerConnection();
+      }
+
+      if (state.mood.name === 'strike') showStrike();
+
+      if (state.timePeriod === 'night') {
+        const hour = new Date().getHours();
+        if (hour >= 23 || hour < 5) {
+          document.body.classList.add('night-mode');
+          godName.textContent = '—— 饿鬼道引路人 · 深夜审判 ——';
+          if (Math.random() < 0.3) setTimeout(spawnGhostFace, 3000 + Math.random() * 5000);
+        }
+      }
+
+      updateSinScroll();
+
+      // 服务器同步
+      if (SERVER_ENABLED) {
+        await syncWithServer();
+      }
+
+      if (state.godLetterName && state.consecutiveDays >= 1) {
+        setTimeout(() => {
+          showToast(`哦，你就是昨天那个非要给神写信的「${state.godLetterName}」对吧？神记住你了。`);
+        }, 1500);
+      }
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('food_oracle_state') || '{}');
+        state.antiCommandCount = saved.antiCommandCount || 0;
+        state.consecutiveDays = saved.consecutiveDays || 0;
+        state.lastVisitDate = saved.lastVisitDate || null;
+        state.godLetterName = saved.godLetterName || null;
+        state.sinRecords = saved.sinRecords || [];
+        state.poisonModeUnlocked = saved.poisonModeUnlocked || false;
+
+        const today = new Date().toDateString();
+        if (state.lastVisitDate) {
+          const yesterday = new Date(Date.now() - 86400000).toDateString();
+          if (state.lastVisitDate === yesterday) state.consecutiveDays++;
+          else if (state.lastVisitDate !== today) state.consecutiveDays = 1;
+        } else {
+          state.consecutiveDays = 1;
+        }
+        state.lastVisitDate = today;
+
+        if (state.consecutiveDays >= 3 && !state.poisonModeUnlocked) {
+          state.poisonModeUnlocked = true;
+          setTimeout(() => showToast('你诚意够了——「毒舌模式」已免费开放一周。想听真话吗？'), 2000);
+        }
+        saveState();
+      } catch (e) {
+        state.antiCommandCount = 0; state.sinRecords = [];
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem('food_oracle_state', JSON.stringify({
+        antiCommandCount: state.antiCommandCount,
+        consecutiveDays: state.consecutiveDays,
+        lastVisitDate: state.lastVisitDate,
+        godLetterName: state.godLetterName,
+        sinRecords: state.sinRecords,
+        poisonModeUnlocked: state.poisonModeUnlocked
+      }));
+    }
+
+    // ═══════════════════════════════════════════
+    //  服务器同步
+    // ═══════════════════════════════════════════
+    function getVisitorId() {
+      let vid = localStorage.getItem('food_oracle_visitor_id');
+      if (!vid) {
+        vid = 'v_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 8);
+        localStorage.setItem('food_oracle_visitor_id', vid);
+      }
+      return vid;
+    }
+
+    async function syncWithServer() {
+      const visitorId = getVisitorId();
+      try {
+        const resp = await fetch(`${SERVER_URL}/api/visitor/checkin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            visitorId,
+            nickname: state.godLetterName || undefined
+          })
+        });
+        if (!resp.ok) return;
+
+        const data = await resp.json();
+        const v = data.visitor;
+
+        state.consecutiveDays = v.consecutiveDays;
+        state.antiCommandCount = v.totalSins;
+        state.poisonModeUnlocked = v.poisonUnlocked;
+        state.lastVisitDate = new Date().toDateString();
+
+        if (v.nickname) state.godLetterName = v.nickname;
+
+        if (v.poisonUnlocked && !localStorage.getItem('poison_notified')) {
+          localStorage.setItem('poison_notified', '1');
+          setTimeout(() => showToast('你诚意够了——「毒舌模式」已免费开放。想听真话吗？'), 2000);
+        }
+
+        saveState();
+        updateSinScroll();
+        console.log('🔄 已同步服务器 | 连续签到:', v.consecutiveDays, '天');
+      } catch (e) {
+        console.log('⚠️ 服务器未连接，使用本地模式:', e.message);
+      }
+    }
+
+    async function recordDrawToServer(food, accepted) {
+      if (!SERVER_ENABLED) return;
+      try {
+        await fetch(`${SERVER_URL}/api/draw`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            visitorId: getVisitorId(),
+            foodId: food.id,
+            foodName: food.name,
+            foodIcon: food.icon,
+            foodCategory: food.category || null,
+            timePeriod: state.timePeriod,
+            mood: state.mood.name,
+            accepted: accepted
+          })
+        });
+      } catch (e) {
+        console.log('⚠️ 抽签同步失败:', e.message);
+      }
+    }
+
+    async function fetchSinRecordsFromServer() {
+      if (!SERVER_ENABLED) return;
+      try {
+        const resp = await fetch(`${SERVER_URL}/api/visitor/${getVisitorId()}/sins`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        state.sinRecords = data.sins.map(s => ({
+          food: s.food_name,
+          icon: s.food_icon,
+          time: s.time,
+          mood: s.mood
+        }));
+        saveState();
+      } catch (e) {
+        // 静默失败
+      }
+    }
+
+    async function checkAIServerStatus() {
+      try {
+        const resp = await fetch(`${SERVER_URL}/api/ai/status`);
+        if (resp.ok) {
+          const data = await resp.json();
+          aiServerConfigured = data.configured;
+          aiProviderName = data.providerName;
+        }
+      } catch (e) {
+        aiServerConfigured = false;
+      }
+      updateAIBadge();
+    }
+
+    // ── Time ──────────────────────────────────
+    function detectTimePeriod() {
+      const h = new Date().getHours();
+      if (h < 10) state.timePeriod = TIME_PERIODS.MORNING;
+      else if (h < 14) state.timePeriod = TIME_PERIODS.NOON;
+      else if (h < 20) state.timePeriod = TIME_PERIODS.EVENING;
+      else state.timePeriod = TIME_PERIODS.NIGHT;
+    }
+
+    // ── Mood ──────────────────────────────────
+    function determineMood() {
+      const seed = new Date().toDateString().split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+      const r = (seed % 100) / 100;
+      if (r < 0.05) state.mood = MOODS.STRIKE;
+      else if (r < 0.20) state.mood = MOODS.ANGRY;
+      else if (r < 0.32) state.mood = MOODS.EMO;
+      else if (r < 0.42) state.mood = MOODS.CHUUNIBYOU;
+      else state.mood = MOODS.NORMAL;
+    }
+
+    // ── UI ────────────────────────────────────
+    function renderInitialUI() {
+      moodIndicator.innerHTML = state.mood.label;
+      updateAIBadge();
+      if (state.mood.name === 'angry') {
+        moodIndicator.style.borderColor = '#c42b2b'; moodIndicator.style.color = '#c42b2b';
+      } else if (state.mood.name === 'emo') {
+        moodIndicator.style.borderColor = '#6a8abf'; moodIndicator.style.color = '#6a8abf';
+      } else if (state.mood.name === 'chuunibyou') {
+        moodIndicator.style.borderColor = '#c97a2e'; moodIndicator.style.color = '#c97a2e';
+      }
+    }
+
+    function updateAIBadge() {
+      if (aiServerConfigured) {
+        aiStatusBadge.textContent = `🤖 ${aiProviderName}`;
+        aiStatusBadge.className = 'ai-status connected';
+        btnAiSpeak.disabled = false;
+      } else {
+        aiStatusBadge.textContent = '🤖 未连接';
+        aiStatusBadge.className = 'ai-status disconnected';
+        btnAiSpeak.disabled = true;
+      }
+      moodIndicator.innerHTML = state.mood.label + ' ';
+      moodIndicator.appendChild(aiStatusBadge);
+    }
+
+    // ── Events ────────────────────────────────
+    function bindEvents() {
+      tube.addEventListener('click', () => {
+        if (state.isDrawing || state.mood.name === 'strike') return;
+        drawFortune();
+      });
+
+      if (window.DeviceMotionEvent) {
+        let lastShake = 0, lx = 0, ly = 0, lz = 0;
+        window.addEventListener('devicemotion', (e) => {
+          const a = e.accelerationIncludingGravity;
+          if (!a) return;
+          const d = Math.abs(a.x - lx) + Math.abs(a.y - ly) + Math.abs(a.z - lz);
+          if (d > 30 && Date.now() - lastShake > 2000 && !state.isDrawing && state.mood.name !== 'strike') {
+            lastShake = Date.now(); drawFortune();
+          }
+          lx = a.x; ly = a.y; lz = a.z;
+        });
+      }
+    }
+
+    // ── Draw Fortune ──────────────────────────
+    function drawFortune() {
+      if (state.isDrawing) return;
+      state.isDrawing = true;
+
+      aiResponseSection.classList.remove('active');
+      aiResponseText.textContent = '';
+      state.aiResponseText = '';
+
+      diagnosisCard.classList.remove('revealed');
+      hintText.style.opacity = '0.3';
+      tube.classList.add('shaking');
+
+      const food = FOOD_DATABASE[Math.floor(Math.random() * FOOD_DATABASE.length)];
+      state.currentFood = food;
+
+      setTimeout(() => {
+        tube.classList.remove('shaking');
+        flyingStick.classList.add('active');
+        setTimeout(() => {
+          flyingStick.classList.remove('active');
+          revealDiagnosis(food);
+          state.isDrawing = false;
+          hintText.style.opacity = '0.7';
+        }, 1000);
+      }, 600);
+    }
+
+    function revealDiagnosis(food) {
+      const timeJudge = food.time_judgement[state.timePeriod];
+      let diagnosis = food.diagnosis;
+      let moodTag = '';
+
+      if (state.mood.name === 'angry') {
+        diagnosis = food.angry_bonus + '\n\n' + diagnosis;
+        moodTag = '⚡ 暴躁日特别版';
+      } else if (state.mood.name === 'emo') {
+        diagnosis = '（食神今日心情低落，但依然为你解签……）\n\n' + diagnosis;
+        moodTag = '🌧️ emo日 · 温柔版';
+      } else if (state.mood.name === 'chuunibyou') {
+        diagnosis = '哼，凡人，这就是你的宿命之食！解开它的封印，你将获得下午摸鱼三小时的秘奥义！\n\n' + diagnosis;
+        moodTag = '🔥 中二病发作版';
+      }
+
+      if (state.timePeriod === 'night') {
+        const h = new Date().getHours();
+        if (h >= 23 || h < 5) {
+          diagnosis = '这个时辰还在找吃的，你不是饿，你是心里有一个填不满的洞。来吧，无论抽到什么，今晚它都是你的灵魂镇痛剂，不是食物。\n\n' + diagnosis;
+        }
+      }
+
+      if (state.godLetterName && Math.random() < 0.5) {
+        diagnosis = `（食神瞥了一眼——「${state.godLetterName}」，又是你。）\n\n` + diagnosis;
+      }
+
+      if (state.poisonModeUnlocked && Math.random() < 0.4) {
+        diagnosis += '\n\n🔥 毒舌模式：「说真的，你抽签之前心里已经有答案了吧？你只是想找个人替你背锅。行，本神背了。」';
+      }
+
+      cardFoodIcon.textContent = food.icon;
+      cardFoodName.textContent = food.name;
+      cardTimeJudgement.textContent = timeJudge;
+      cardDiagnosis.textContent = diagnosis;
+      cardMoodTag.textContent = moodTag;
+
+      setTimeout(() => diagnosisCard.classList.add('revealed'), 100);
+    }
+
+    // ── Accept / Reject ───────────────────────
+    function acceptFortune() {
+      const food = state.currentFood;
+      if (!food) return;
+
+      recordDrawToServer(food, true);  // ★ 服务器同步
+
+      showToast(`🙏 你从了食神的旨意。去吃${food.name}吧，神会保佑你的胃。`);
+      setTimeout(() => {
+        generateStickHeads();
+        diagnosisCard.classList.remove('revealed');
+        aiResponseSection.classList.remove('active');
+      }, 800);
+    }
+
+    function rejectFortune() {
+      const food = state.currentFood;
+      if (!food) return;
+      state.antiCommandCount++;
+      state.sinRecords.push({
+        food: food.name, icon: food.icon,
+        time: new Date().toLocaleString('zh-CN'),
+        mood: state.mood.label
+      });
+
+      recordDrawToServer(food, false);  // ★ 服务器同步
+
+      saveState(); updateSinScroll();
+
+      let msg;
+      if (state.mood.name === 'angry') msg = '💢 大胆！！今日食神暴躁你还敢抗旨？！罪加一等！！';
+      else if (state.mood.name === 'emo') msg = '😔 连你也拒绝神……也罢，神已经习惯了被辜负。';
+      else if (state.mood.name === 'chuunibyou') msg = '⚔️ 哼！竟敢违抗本神之命！你的反叛意志已被记录在暗黑卷轴之上！';
+      else {
+        const replies = [
+          `⚔️ 你拒绝了${food.name}。食神摇摇头，在小本本上记了一笔。`,
+          `⚔️ 抗旨！食神眉毛一挑：行，你有种。但神会记住的。`,
+          `⚔️ 竟敢抗旨？食神冷笑：你的罪状+1，凑满三条会有惊喜。`,
+        ];
+        msg = replies[Math.floor(Math.random() * replies.length)];
+      }
+      showToast(msg);
+
+      setTimeout(() => {
+        generateStickHeads();
+        diagnosisCard.classList.remove('revealed');
+        aiResponseSection.classList.remove('active');
+      }, 800);
+    }
+
+    // ── AI: Let God Speak (服务端代理) ────
+    async function letGodSpeak() {
+      if (!aiServerConfigured) {
+        showToast('⚠️ AI 神谕未配置，请联系管理员设置 API Key');
+        return;
+      }
+      if (!state.currentFood) return;
+      if (state.isAiGenerating) return;
+
+      state.isAiGenerating = true;
+      btnAiSpeak.disabled = true;
+      btnAiSpeak.textContent = '⏳ 神在思索...';
+
+      aiResponseSection.classList.add('active');
+      aiResponseText.textContent = '';
+      aiResponseLoading.style.display = 'flex';
+
+      const food = state.currentFood;
+      const periodLabel = PERIOD_LABELS[state.timePeriod];
+      const moodName = state.mood.name;
+      const isNightGhost = state.timePeriod === 'night' && (new Date().getHours() >= 23 || new Date().getHours() < 5);
+
+      let systemPrompt = `你是「食神」——一个野生、毒舌、幽默、有性格的中国食神。`;
+      if (moodName === 'angry') systemPrompt += '今天你心情暴躁，说话带着不耐烦和攻击性。';
+      else if (moodName === 'emo') systemPrompt += '今天你心情低落，说话像深夜情感电台。';
+      else if (moodName === 'chuunibyou') systemPrompt += '今天你中二病发作，说话像动漫台词。';
+      if (isNightGhost) systemPrompt += '现在是深夜鬼食模式，你的语气带着一丝瘆人的温柔。';
+      if (state.poisonModeUnlocked) systemPrompt += '毒舌模式已开启，你可以更毒舌。';
+      if (state.godLetterName) systemPrompt += `你知道这个用户的名字叫「${state.godLetterName}」。`;
+
+      const userPrompt = `当前时间：${periodLabel}。
+用户抽到的食物签是：${food.name}（${food.category}）。
+你已经给了以下判词：「${food.time_judgement[state.timePeriod]}」
+
+现在请你以食神的身份，给这个凡人一段追加的、更个人化的毒舌点评（80-150字）。
+风格要幽默、有梗、出人意料。不要复述之前的判词。像神明在对信徒说话。`;
+
+      try {
+        const resp = await fetch(`${SERVER_URL}/api/ai/speak`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ systemPrompt, userPrompt })
+        });
+        if (!resp.ok) {
+          const err = await resp.json();
+          throw new Error(err.error || `服务器返回 ${resp.status}`);
+        }
+        const data = await resp.json();
+        state.aiResponseText = data.text;
+        typewriterEffect(aiResponseText, data.text);
+      } catch (e) {
+        aiResponseText.textContent = `😔 食神暂时失联了……（${e.message}）`;
+        aiResponseLoading.style.display = 'none';
+      } finally {
+        state.isAiGenerating = false;
+        btnAiSpeak.disabled = false;
+        btnAiSpeak.textContent = '🔮 让神亲自开口';
+      }
+    }
+
+    function typewriterEffect(element, text) {
+      aiResponseLoading.style.display = 'none';
+      element.textContent = '';
+      let i = 0;
+      const cursor = document.createElement('span');
+      cursor.className = 'typing-cursor';
+      element.appendChild(cursor);
+
+      const interval = setInterval(() => {
+        if (i < text.length) {
+          const before = text.substring(0, i);
+          element.innerHTML = before + '<span class="typing-cursor"></span>';
+          i++;
+        } else {
+          clearInterval(interval);
+          element.textContent = text;
+        }
+      }, 30 + Math.random() * 30);
+    }
+
+
+    // ── Server URL Management ──────────────────
+    let serverUrlDebounceTimer = null;
+
+    function initServerUrlInput() {
+      const input = document.getElementById('serverUrlInput');
+      if (!input) return;
+      input.value = SERVER_URL || '';
+
+      input.addEventListener('input', () => {
+        clearTimeout(serverUrlDebounceTimer);
+        serverUrlDebounceTimer = setTimeout(() => {
+          const newUrl = input.value.trim().replace(/\/+$/, ''); // 去掉末尾斜杠
+          saveServerUrl(newUrl);
+          SERVER_URL = newUrl;
+          checkServerConnection();
+          showToast('📡 服务器地址已更新，正在重连...');
+        }, 1500); // 1.5秒防抖
+      });
+    }
+
+    async function checkServerConnection() {
+      const statusEl = document.getElementById('serverStatus');
+      if (!statusEl) return;
+      statusEl.innerHTML = '检测中...';
+      try {
+        const resp = await fetch(`${SERVER_URL}/api/health`, { signal: AbortSignal.timeout(3000) });
+        if (resp.ok) {
+          statusEl.innerHTML = '✅ <span style="color:var(--ai-glow);">已连接</span>';
+          // 重新检查 AI 状态
+          await checkAIServerStatus();
+          updateAIBadge();
+        } else {
+          statusEl.innerHTML = '⚠️ <span style="color:#c97a2e;">服务器异常</span>';
+        }
+      } catch (e) {
+        statusEl.innerHTML = '❌ <span style="color:var(--red-bright);">无法连接</span>';
+      }
+    }
+
+    // ── Settings ──────────────────────────────
+    function openSettings() {
+      const statusEl = document.getElementById('aiConfigStatus');
+      if (aiServerConfigured) {
+        statusEl.innerHTML = `✅ <span style="color:var(--ai-glow);">已配置</span> — 提供商：${aiProviderName}<br>AI 神谕功能已就绪，可直接使用。`;
+      } else {
+        statusEl.innerHTML = `⚠️ <span style="color:#c97a2e;">未配置</span> — 请在服务器环境变量中设置 AI_API_KEY<br>参考项目中的 .env.example 文件。`;
+      }
+
+      // 初始化服务器地址输入框
+      const input = document.getElementById('serverUrlInput');
+      if (input) input.value = SERVER_URL || '';
+
+      // 检查连接状态
+      checkServerConnection();
+
+      settingsOverlay.classList.add('open');
+    }
+
+    function closeSettings(e) {
+      if (e.target === settingsOverlay) settingsOverlay.classList.remove('open');
+    }
+
+    function closeSettingsDirect() {
+      settingsOverlay.classList.remove('open');
+    }
+
+    // ── Sin Scroll ────────────────────────────
+    function updateSinScroll() {
+      sinBadge.textContent = state.sinRecords.length;
+      sinScroll.classList.toggle('visible', state.sinRecords.length >= 3);
+    }
+
+    async function openSinScroll() {
+      if (SERVER_ENABLED) {
+        await fetchSinRecordsFromServer();
+        updateSinScroll();
+      }
+      sinList.innerHTML = state.sinRecords.map((r, i) => `
+    <li class="sin-item"><span>${r.icon} 第${i + 1}条：拒绝「${r.food}」</span><span class="sin-item-time">${r.time}</span></li>
+  `).reverse().join('');
+      sinModal.classList.add('open');
+    }
+    function closeSinScroll(e) { if (e.target === sinModal) sinModal.classList.remove('open'); }
+    function closeSinScrollDirect() { sinModal.classList.remove('open'); }
+
+    // ── Letter ────────────────────────────────
+    function openLetterModal() {
+      letterMessage.textContent = state.godLetterName
+        ? `「${state.godLetterName}」——神认得你了。想换个名号吗？`
+        : '在此留下你的名号（不必是真名），食神会记住你。';
+      letterInput.value = '';
+      letterModal.classList.add('open');
+    }
+    function closeLetterModal(e) { if (e.target === letterModal) letterModal.classList.remove('open'); }
+    function closeLetterModalDirect() { letterModal.classList.remove('open'); }
+    function submitLetter() {
+      const name = letterInput.value.trim();
+      if (!name) { showToast('不写名号？神怎么记住你？'); return; }
+      state.godLetterName = name;
+      saveState();
+
+      // ★ 同步昵称到服务器
+      if (SERVER_ENABLED) {
+        fetch(`${SERVER_URL}/api/visitor/${getVisitorId()}/nickname`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nickname: name })
+        }).catch(() => { });
+      }
+
+      letterModal.classList.remove('open');
+      showToast(`「${name}」——本神不识字，不会写信。但明天午时再来，神会认出你。`);
+    }
+
+    // ── Strike ────────────────────────────────
+    function showStrike() { strikeOverlay.classList.add('active'); }
+
+    // ── Ghost Face ────────────────────────────
+    function spawnGhostFace() {
+      const ghost = document.createElement('div');
+      ghost.className = 'ghost-face';
+      ghost.textContent = '👻';
+      ghost.style.left = (10 + Math.random() * 80) + '%';
+      ghost.style.top = (60 + Math.random() * 30) + '%';
+      document.body.appendChild(ghost);
+      setTimeout(() => ghost.remove(), 3500);
+      if (Math.random() < 0.3) setTimeout(spawnGhostFace, 5000 + Math.random() * 8000);
+    }
+
+    // ── Toast ─────────────────────────────────
+    let toastTimer;
+    function showToast(msg) {
+      clearTimeout(toastTimer);
+      toast.textContent = msg;
+      toast.classList.add('show');
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // ── Helpers ───────────────────────────────
+    function generateStickHeads() {
+      stickHeads.innerHTML = '';
+      for (let i = 0; i < 24; i++) {
+        const s = document.createElement('div');
+        s.className = 'stick-head';
+        s.style.transform = `rotate(${(Math.random() - 0.5) * 15}deg)`;
+        stickHeads.appendChild(s);
+      }
+    }
+
+    // ── Start ─────────────────────────────────
+    init();
+    console.log('🥢 食神签 · 手机端已就绪（Capacitor + 后端数据库）');
+    console.log('   平台:', IS_CAPACITOR ? '📱 原生 (Capacitor)' : '🌐 浏览器');
+    console.log('   时段:', state.timePeriod, '| 神谕:', state.mood.label);
+    console.log('   连续签到:', state.consecutiveDays, '天 | 抗旨:', state.antiCommandCount);
+    console.log('   AI:', aiServerConfigured ? '已配置 (' + aiProviderName + ')' : '未配置');
+    console.log('   服务器:', SERVER_ENABLED ? (SERVER_URL || '同源托管') : '关闭');
+    console.log('   📡 摇晃手机求签 → 点击「让神亲自开口」触发 AI');
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,26 @@
+{
+  "name": "food-oracle-server",
+  "version": "1.0.0",
+  "description": "食神签 · 野生食神的日常审判 — 后端 + 手机端 (Capacitor)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "mobile:sync": "npx cap sync android",
+    "mobile:open": "npx cap open android",
+    "mobile:build": "npx cap sync android && cd android && gradlew assembleDebug",
+    "mobile:dev": "npx cap sync android && npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
+    "@capacitor/preferences": "^8.0.1",
+    "better-sqlite3": "^11.3.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}

@@ -1,0 +1,25 @@
+# ── 食神签 · Docker Compose ──────────────────
+# 启动: docker compose up -d
+# 停止: docker compose down
+# 查看: docker compose logs -f
+
+services:
+  food-oracle:
+    build: .
+    container_name: food-oracle
+    ports:
+      - "3456:3456"
+    volumes:
+      - oracle_data:/app/data
+    environment:
+      - PORT=3456
+      - DB_PATH=/app/data/food_oracle.db
+      # AI 神谕配置（可选，不配也能用基础功能）
+      - AI_PROVIDER=groq
+      - AI_API_KEY=${AI_API_KEY:-}
+      - AI_MODEL=llama-3.1-8b-instant
+    restart: unless-stopped
+
+volumes:
+  oracle_data:
+    name: food_oracle_data
